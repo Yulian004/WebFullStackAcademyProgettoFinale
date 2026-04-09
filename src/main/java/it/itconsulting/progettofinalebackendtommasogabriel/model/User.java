@@ -3,6 +3,8 @@ package it.itconsulting.progettofinalebackendtommasogabriel.model;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity(name = "users")
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties("password")
 public class User {
 
     @Id
