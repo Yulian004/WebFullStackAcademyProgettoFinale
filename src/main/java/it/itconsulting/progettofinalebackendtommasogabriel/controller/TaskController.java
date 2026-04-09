@@ -24,19 +24,19 @@ import it.itconsulting.progettofinalebackendtommasogabriel.model.Task;
 import it.itconsulting.progettofinalebackendtommasogabriel.service.TaskService;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api")
 @CrossOrigin("*")
 public class TaskController {
 
     @Autowired
     private TaskService taskService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/tasks/{userId}")
     public List<Task> getAllUserTasks(@PathVariable long userId) {
         return taskService.getTasksByUserId(userId);
     }
 
-    @PostMapping("")
+    @PostMapping("/tasks")
     public ResponseEntity<Object> createTask(@RequestBody @Validated TaskCreationDto taskCreationDto,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -60,7 +60,7 @@ public class TaskController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/tasks/{id}")
     public ResponseEntity<Object> updateTask(@PathVariable long id, @RequestBody @Validated TaskUpdateDto taskUpdateDto,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -84,7 +84,7 @@ public class TaskController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Object> deleteTask(@PathVariable long id) {
         try {
             taskService.deleteTask(id);
