@@ -1,7 +1,6 @@
 package it.itconsulting.progettofinalebackendtommasogabriel.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import it.itconsulting.progettofinalebackendtommasogabriel.dto.TaskCreationDto;
 import it.itconsulting.progettofinalebackendtommasogabriel.dto.TaskUpdateDto;
+import it.itconsulting.progettofinalebackendtommasogabriel.exceptions.task.TaskNotFoundException;
+import it.itconsulting.progettofinalebackendtommasogabriel.exceptions.task.TaskNotValidException;
+import it.itconsulting.progettofinalebackendtommasogabriel.exceptions.user.UserNotFoundException;
 import it.itconsulting.progettofinalebackendtommasogabriel.model.Task;
 import it.itconsulting.progettofinalebackendtommasogabriel.model.User;
 import it.itconsulting.progettofinalebackendtommasogabriel.repository.TaskRepository;
@@ -23,15 +25,15 @@ public class TaskService {
     @Autowired
     UserService userService;
 
-    public Task createTask(TaskCreationDto taskDto) {
+    public Task createTask(TaskCreationDto taskDto) throws TaskNotValidException, UserNotFoundException {
         if (taskDto == null) {
-            throw new IllegalArgumentException("Task not valid");
+            throw new TaskNotValidException();
         }
 
         Optional<User> optionalUser = userService.getUserById(taskDto.getUserId());
 
         if (optionalUser.isEmpty()) {
-            throw new IllegalArgumentException("Task not valid");
+            throw new UserNotFoundException();
         }
 
         User user = optionalUser.get();
@@ -41,21 +43,21 @@ public class TaskService {
         task.setDescription(taskDto.getDescription());
         task.setStatus(taskDto.getStatus() != null ? taskDto.getStatus() : false);
         task.setPriority(taskDto.getPriority());
-        task.setCreationTimestamp(LocalDateTime.now());
+        task.setCreationTimestamp(LocalDate.now());
         task.setDeadlineTimestamp(taskDto.getDeadlineTimestamp());
         task.setUser(user);
 
         return taskRepository.save(task);
     }
 
-    public Task updateTask(long id, TaskUpdateDto taskDto) {
+    public Task updateTask(long id, TaskUpdateDto taskDto) throws TaskNotValidException, TaskNotFoundException {
         if (taskDto == null) {
-            throw new IllegalArgumentException("Task not valid");
+            throw new TaskNotValidException();
         }
 
         Optional<Task> optionalTask = getTaskById(id);
         if (optionalTask.isEmpty()) {
-            throw new IllegalArgumentException("Task with such id not found");
+            throw new TaskNotFoundException();
         }
 
         Task taskToUpdate = optionalTask.get();
@@ -81,7 +83,7 @@ public class TaskService {
         }
 
         LocalDate deadlineTimestamp = taskDto.getDeadlineTimestamp();
-        if(deadlineTimestamp !=null) {
+        if (deadlineTimestamp != null) {
             taskToUpdate.setDeadlineTimestamp(deadlineTimestamp);
         }
 

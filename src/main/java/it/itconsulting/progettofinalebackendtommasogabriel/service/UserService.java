@@ -1,13 +1,15 @@
 package it.itconsulting.progettofinalebackendtommasogabriel.service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import it.itconsulting.progettofinalebackendtommasogabriel.dto.UserSignUpDto;
+import it.itconsulting.progettofinalebackendtommasogabriel.dto.UserDto;
+import it.itconsulting.progettofinalebackendtommasogabriel.exceptions.user.UserNotFoundException;
+import it.itconsulting.progettofinalebackendtommasogabriel.exceptions.user.UserNotValidException;
 import it.itconsulting.progettofinalebackendtommasogabriel.model.User;
 import it.itconsulting.progettofinalebackendtommasogabriel.repository.UserRepository;
 
@@ -17,28 +19,28 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User createUser(UserSignUpDto userDto) {
+    public User createUser(UserDto userDto) throws UserNotValidException {
         if (userDto == null) {
-            throw new IllegalArgumentException("User not valid");
+            throw new UserNotValidException();
         }
 
         User user = new User();
         user.setUsername(userDto.getUsername());
         user.setEmail(userDto.getEmail());
         user.setPassword(userDto.getPassword());
-        user.setCreationTimestamp(LocalDateTime.now());
+        user.setCreationTimestamp(LocalDate.now());
 
         return userRepository.save(user);
     }
 
-    public User updateUser(UserSignUpDto userDto, long id) {
+    public User updateUser(UserDto userDto, long id) throws UserNotValidException, UserNotFoundException {
         if (userDto == null) {
-            throw new IllegalArgumentException("User not valid");
+            throw new UserNotValidException();
         }
 
         Optional<User> optionalUser = getUserById(id);
         if (optionalUser.isEmpty()) {
-            throw new IllegalArgumentException("User with such id not found");
+            throw new UserNotFoundException();
         }
 
         User userToUpdate = optionalUser.get();
@@ -72,6 +74,15 @@ public class UserService {
 
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public Boolean checkUserExistence(String email) {
+        Optional<User> checkUserExistence = getUserByEmail(email);
+        if (checkUserExistence.isPresent()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

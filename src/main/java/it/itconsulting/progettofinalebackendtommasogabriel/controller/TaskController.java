@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.itconsulting.progettofinalebackendtommasogabriel.dto.TaskCreationDto;
 import it.itconsulting.progettofinalebackendtommasogabriel.dto.TaskUpdateDto;
+import it.itconsulting.progettofinalebackendtommasogabriel.exceptions.task.TaskNotFoundException;
+import it.itconsulting.progettofinalebackendtommasogabriel.exceptions.task.TaskNotValidException;
+import it.itconsulting.progettofinalebackendtommasogabriel.exceptions.user.UserNotFoundException;
 import it.itconsulting.progettofinalebackendtommasogabriel.model.Task;
 import it.itconsulting.progettofinalebackendtommasogabriel.service.TaskService;
 
@@ -40,23 +43,23 @@ public class TaskController {
     public ResponseEntity<Object> createTask(@RequestBody @Validated TaskCreationDto taskCreationDto,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
+
             String stringifiedErrors = bindingResult.getAllErrors().stream()
                     .map(e -> e.getDefaultMessage())
                     .collect(Collectors.joining("\n"));
 
-            Error error = new Error(stringifiedErrors);
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(stringifiedErrors, HttpStatus.BAD_REQUEST);
         }
 
         try {
             Task task = taskService.createTask(taskCreationDto);
             return new ResponseEntity<>(task, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            Error error = new Error(e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        } catch (TaskNotValidException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            Error error = new Error("An error occurred");
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Errore inaspettato", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -68,19 +71,18 @@ public class TaskController {
                     .map(e -> e.getDefaultMessage())
                     .collect(Collectors.joining("\n"));
 
-            Error error = new Error(stringifiedErrors);
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(stringifiedErrors, HttpStatus.BAD_REQUEST);
         }
 
         try {
             Task updatedTask = taskService.updateTask(id, taskUpdateDto);
             return new ResponseEntity<>(updatedTask, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            Error error = new Error(e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        } catch (TaskNotValidException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (TaskNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            Error error = new Error("An error occurred");
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Errore inaspettato", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -90,8 +92,7 @@ public class TaskController {
             taskService.deleteTask(id);
             return new ResponseEntity<>((Object) null, HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            Error error = new Error("An error occurred");
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Errore inaspettato", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

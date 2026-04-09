@@ -1,7 +1,9 @@
 package it.itconsulting.progettofinalebackendtommasogabriel.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity(name = "users")
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties("password")
 public class User {
 
     @Id
@@ -28,7 +31,7 @@ public class User {
     @Column(nullable = false)
     private String password;
     @Column(name = "creation_timestamp", nullable = false)
-    private LocalDateTime creationTimestamp;
+    private LocalDate creationTimestamp;
 
     @OneToMany(mappedBy = "user")
     private List<Task> listTasks;

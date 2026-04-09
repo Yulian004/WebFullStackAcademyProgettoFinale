@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.itconsulting.progettofinalebackendtommasogabriel.dto.UserSignInDto;
-import it.itconsulting.progettofinalebackendtommasogabriel.dto.UserSignUpDto;
+import it.itconsulting.progettofinalebackendtommasogabriel.exceptions.user.UserNotValidException;
+import it.itconsulting.progettofinalebackendtommasogabriel.dto.UserDto;
 import it.itconsulting.progettofinalebackendtommasogabriel.model.User;
 import it.itconsulting.progettofinalebackendtommasogabriel.service.UserService;
 
@@ -28,67 +29,56 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<Object> signUpUser(@RequestBody @Validated UserSignUpDto userSignUpDto, BindingResult bindingResult) {
+    public ResponseEntity<Object> signUpUser(@RequestBody @Validated UserDto userDto, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             String stringifiedErrors = bindingResult.getAllErrors().stream()
                     .map(e -> e.getDefaultMessage())
                     .collect(Collectors.joining("\n"));
 
-            Error error = new Error(stringifiedErrors);
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(stringifiedErrors, HttpStatus.BAD_REQUEST);
         }
 
         try {
-            Optional<User> checkUserExistence = userService.getUserByEmail(userSignUpDto.getEmail());
-            if(checkUserExistence.isPresent()) {
-                Error error = new Error("An account with this email address already exists");
-                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            if (userService.checkUserExistence(userDto.getEmail())) {
+                return new ResponseEntity<>("Un account con questa email è già presente", HttpStatus.BAD_REQUEST);
             }
-            User user = userService.createUser(userSignUpDto);
+            User user = userService.createUser(userDto);
             return new ResponseEntity<>(user, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            Error error = new Error(e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        } catch (UserNotValidException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            Error error = new Error("An error occurred");
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Errore inaspettato", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> loginUser(@RequestBody @Validated UserSignInDto userSignInDto, BindingResult bindingResult) {
+    public ResponseEntity<Object> loginUser(@RequestBody @Validated UserSignInDto userSignInDto,
+            BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             String stringifiedErrors = bindingResult.getAllErrors().stream()
                     .map(e -> e.getDefaultMessage())
                     .collect(Collectors.joining("\n"));
 
-            Error error = new Error(stringifiedErrors);
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(stringifiedErrors, HttpStatus.BAD_REQUEST);
         }
 
         try {
             Optional<User> optionalUser = userService.getUserByEmail(userSignInDto.getEmail());
 
             if (optionalUser.isEmpty()) {
-                Error error = new Error("User with this email not found");
-                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Utente non trovato", HttpStatus.BAD_REQUEST);
             }
 
             User user = optionalUser.get();
             if (!user.getPassword().equals(userSignInDto.getPassword())) {
-                Error error = new Error("Wrong password");
-                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Password sbagliata", HttpStatus.BAD_REQUEST);
             }
 
             return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            Error error = new Error(e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            Error error = new Error("An error occurred");
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Errore inaspettato", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

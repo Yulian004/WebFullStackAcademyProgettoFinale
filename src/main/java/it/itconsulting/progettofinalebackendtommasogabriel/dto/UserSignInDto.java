@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class UserSignInDto {
-    @NotBlank(message = "Email is required")
-    @Email(message = "Please provide a valid email address")
+    @NotBlank(message = "Email richiesta")
+    @Email(message = "Inserisci una email valida")
     private String email;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Password richiesta")
     private String password;
 }

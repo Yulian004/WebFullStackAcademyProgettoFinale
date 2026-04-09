@@ -14,20 +14,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TaskUpdateDto {
     
-    @NotBlank(message = "Title can not be blank")
-    @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
+    @NotBlank(message = "Il titolo non può essere vuoto")
+    @Size(min = 3, max = 100, message = "Il titolo deve avere una lunghezza compresa tra 3 e 100 caratteri")
     private String title;
 
-    @NotBlank(message = "Description can not be blank")
-    @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+    @NotBlank(message = "La descrizione non può essere vuota")
+    @Size(max = 1000, message = "La descrizione non può superare i 1000 caratteri")
     private String description;
 
     private Boolean status;
 
-    @NotNull(message = "Priority can not be null")
+    @NotNull(message = "La priorità non può essere nulla")
     private Task.Priority priority;
     
-    @FutureOrPresent(message = "Task deadline cannot be in the past")
-    private LocalDate deadlineTimestamp; // It can be null because is an optional field
+    @FutureOrPresent(message = "La scadenza del task non può essere nel passato")
+    private LocalDate deadlineTimestamp; // It is optional, so it can be null
 
 }
