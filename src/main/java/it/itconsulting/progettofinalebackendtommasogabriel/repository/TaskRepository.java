@@ -9,4 +9,5 @@ import it.itconsulting.progettofinalebackendtommasogabriel.model.Task;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
     public List<Task> findByUserId(long userId);
+    
 }

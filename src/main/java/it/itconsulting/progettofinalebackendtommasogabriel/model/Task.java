@@ -1,11 +1,9 @@
 package it.itconsulting.progettofinalebackendtommasogabriel.model;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -26,7 +24,6 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @ToString(exclude = "user")
-@JsonIgnoreProperties("user")
 public class Task {
 
     @Id
@@ -43,7 +40,7 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private Priority priority;
     @Column(name = "creation_timestamp", nullable = false)
-    private LocalDateTime creationTimestamp;
+    private LocalDate creationTimestamp;
     @Column(name = "deadline_timestamp")
     private LocalDate deadlineTimestamp;
 

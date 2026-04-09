@@ -1,6 +1,6 @@
 package it.itconsulting.progettofinalebackendtommasogabriel.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -28,7 +28,7 @@ public class User {
     @Column(nullable = false)
     private String password;
     @Column(name = "creation_timestamp", nullable = false)
-    private LocalDateTime creationTimestamp;
+    private LocalDate creationTimestamp;
 
     @OneToMany(mappedBy = "user")
     private List<Task> listTasks;
